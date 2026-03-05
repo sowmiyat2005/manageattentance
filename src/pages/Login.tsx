@@ -5,22 +5,51 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { Navigate } from "react-router-dom";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState<"admin" | "faculty" | "student">("admin");
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  if (loading) return null;
+  if (user) return <Navigate to="/dashboard" replace />;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/dashboard");
-  };
+    setSubmitting(true);
 
-  const roles = [
-    { key: "admin" as const, label: "Admin" },
-    { key: "faculty" as const, label: "Faculty" },
-    { key: "student" as const, label: "Student" },
-  ];
+    try {
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { full_name: fullName },
+            emailRedirectTo: window.location.origin,
+          },
+        });
+        if (error) throw error;
+        toast.success("Account created! Check your email to confirm, or sign in if auto-confirm is enabled.");
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        navigate("/dashboard");
+      }
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -41,7 +70,7 @@ const Login = () => {
             Cloud-Based Student Management
           </h1>
           <p className="text-primary-foreground/70 text-lg leading-relaxed">
-            Efficiently manage student records, attendance, and performance tracking through a secure cloud infrastructure. Access academic information anytime, anywhere.
+            Efficiently manage student records, attendance, and performance tracking through a secure cloud infrastructure.
           </p>
           <div className="mt-10 grid grid-cols-3 gap-4">
             {[
@@ -58,7 +87,7 @@ const Login = () => {
         </motion.div>
       </div>
 
-      {/* Right panel - Login form */}
+      {/* Right panel */}
       <div className="flex-1 flex items-center justify-center p-8">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
@@ -73,27 +102,28 @@ const Login = () => {
             <span className="font-heading font-bold text-lg">EduCloud</span>
           </div>
 
-          <h2 className="font-heading text-2xl font-bold mb-1">Welcome back</h2>
-          <p className="text-muted-foreground text-sm mb-8">Sign in to your account to continue</p>
+          <h2 className="font-heading text-2xl font-bold mb-1">
+            {isSignUp ? "Create an account" : "Welcome back"}
+          </h2>
+          <p className="text-muted-foreground text-sm mb-8">
+            {isSignUp ? "Sign up to get started" : "Sign in to your account to continue"}
+          </p>
 
-          {/* Role selector */}
-          <div className="flex gap-1 p-1 bg-muted rounded-lg mb-6">
-            {roles.map((r) => (
-              <button
-                key={r.key}
-                onClick={() => setRole(r.key)}
-                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
-                  role === r.key
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {r.label}
-              </button>
-            ))}
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {isSignUp && (
+              <div className="space-y-2">
+                <Label htmlFor="fullName" className="text-sm font-medium">Full Name</Label>
+                <Input
+                  id="fullName"
+                  type="text"
+                  placeholder="Your full name"
+                  className="h-11"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                />
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">Email</Label>
               <Input
@@ -101,7 +131,9 @@ const Login = () => {
                 type="email"
                 placeholder="you@university.edu"
                 className="h-11"
-                defaultValue="admin@university.edu"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
             <div className="space-y-2">
@@ -112,7 +144,10 @@ const Login = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   className="h-11 pr-10"
-                  defaultValue="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
                 />
                 <button
                   type="button"
@@ -124,20 +159,20 @@ const Login = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-muted-foreground">
-                <input type="checkbox" className="rounded border-input" />
-                Remember me
-              </label>
-              <a href="#" className="text-secondary font-medium hover:underline">
-                Forgot password?
-              </a>
-            </div>
-
-            <Button type="submit" className="w-full h-11 font-medium">
-              Sign In
+            <Button type="submit" className="w-full h-11 font-medium" disabled={submitting}>
+              {submitting ? "Please wait..." : isSignUp ? "Sign Up" : "Sign In"}
             </Button>
           </form>
+
+          <p className="text-center text-sm text-muted-foreground mt-6">
+            {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+            <button
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-secondary font-medium hover:underline"
+            >
+              {isSignUp ? "Sign In" : "Sign Up"}
+            </button>
+          </p>
         </motion.div>
       </div>
     </div>
