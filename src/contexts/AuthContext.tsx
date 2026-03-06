@@ -28,18 +28,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<{ full_name: string; email: string | null } | null>(null);
 
   useEffect(() => {
+    // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          const { data } = await supabase
-            .from("profiles")
-            .select("full_name, email")
-            .eq("user_id", session.user.id)
-            .single();
-          setProfile(data);
+          // Use setTimeout to avoid Supabase deadlock
+          setTimeout(async () => {
+            const { data } = await supabase
+              .from("profiles")
+              .select("full_name, email")
+              .eq("user_id", session.user.id)
+              .single();
+            setProfile(data);
+          }, 0);
         } else {
           setProfile(null);
         }
@@ -47,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
+    // Also get initial session as a fallback
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
