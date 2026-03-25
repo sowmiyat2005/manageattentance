@@ -1,7 +1,7 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { motion } from "framer-motion";
 import { User, Shield, Bell, Palette } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,29 @@ const SettingsPage = () => {
   const [emailNotif, setEmailNotif] = useState(true);
   const [attendanceAlert, setAttendanceAlert] = useState(true);
 
+  // Password change
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
+
+  // Theme
+  const [theme, setTheme] = useState<"light" | "dark" | "system">(() => {
+    return (localStorage.getItem("theme") as "light" | "dark" | "system") || "light";
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else if (theme === "light") {
+      root.classList.remove("dark");
+    } else {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      root.classList.toggle("dark", prefersDark);
+    }
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
   const handleUpdateProfile = async () => {
     if (!user) return;
     setSaving(true);
@@ -35,9 +58,24 @@ const SettingsPage = () => {
   };
 
   const handleChangePassword = async () => {
-    const { error } = await supabase.auth.updateUser({ password: undefined });
-    // In a real app, we'd collect the new password from a form
-    toast.info("Password change feature — please use the forgot password flow from the login page");
+    if (!newPassword || newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    setChangingPassword(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      toast.error("Failed to change password: " + error.message);
+    } else {
+      toast.success("Password changed successfully");
+      setNewPassword("");
+      setConfirmPassword("");
+    }
+    setChangingPassword(false);
   };
 
   return (
@@ -88,10 +126,23 @@ const SettingsPage = () => {
               </div>
               <Separator />
               <div className="space-y-4 max-w-md">
-                <div className="space-y-2">
-                  <Label>Password</Label>
-                  <p className="text-sm text-muted-foreground">Change your account password</p>
-                  <Button variant="outline" onClick={handleChangePassword}>Change Password</Button>
+                <div className="space-y-3">
+                  <Label>Change Password</Label>
+                  <Input
+                    type="password"
+                    placeholder="New password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                  <Input
+                    type="password"
+                    placeholder="Confirm new password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                  <Button variant="outline" onClick={handleChangePassword} disabled={changingPassword}>
+                    {changingPassword ? "Changing..." : "Change Password"}
+                  </Button>
                 </div>
                 <Separator />
                 <div className="space-y-2">
@@ -148,13 +199,19 @@ const SettingsPage = () => {
                   <Label>Theme</Label>
                   <p className="text-xs text-muted-foreground mt-0.5 mb-3">Select your preferred theme</p>
                   <div className="grid grid-cols-3 gap-3">
-                    {[
-                      { label: "Light", active: true, bg: "bg-background", border: "border-primary" },
-                      { label: "Dark", active: false, bg: "bg-foreground", border: "border-border" },
-                      { label: "System", active: false, bg: "bg-gradient-to-br from-background to-foreground", border: "border-border" },
-                    ].map((t) => (
-                      <button key={t.label} className={`rounded-lg border-2 p-3 text-center text-sm font-medium transition-colors ${t.active ? t.border : "border-border hover:border-muted-foreground"}`}>
-                        <div className={`w-full h-8 rounded mb-2 ${t.bg}`} />
+                    {([
+                      { label: "Light", value: "light" as const, bg: "bg-background border-border", preview: "bg-white" },
+                      { label: "Dark", value: "dark" as const, bg: "bg-background border-border", preview: "bg-gray-900" },
+                      { label: "System", value: "system" as const, bg: "bg-background border-border", preview: "bg-gradient-to-br from-white to-gray-900" },
+                    ] as const).map((t) => (
+                      <button
+                        key={t.value}
+                        onClick={() => setTheme(t.value)}
+                        className={`rounded-lg border-2 p-3 text-center text-sm font-medium transition-colors ${
+                          theme === t.value ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-muted-foreground"
+                        }`}
+                      >
+                        <div className={`w-full h-8 rounded mb-2 ${t.preview}`} />
                         {t.label}
                       </button>
                     ))}
