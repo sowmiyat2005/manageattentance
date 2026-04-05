@@ -149,7 +149,8 @@ const Students = () => {
                   <th className="text-left px-5 py-3 font-medium text-muted-foreground">Department</th>
                   <th className="text-left px-5 py-3 font-medium text-muted-foreground">Year</th>
                   <th className="text-left px-5 py-3 font-medium text-muted-foreground">GPA</th>
-                  <th className="text-left px-5 py-3 font-medium text-muted-foreground">Status</th>
+                   <th className="text-left px-5 py-3 font-medium text-muted-foreground">Status</th>
+                   <th className="text-left px-5 py-3 font-medium text-muted-foreground">Docs</th>
                 </tr>
               </thead>
               <tbody>
