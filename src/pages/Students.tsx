@@ -184,6 +184,7 @@ const Students = () => {
           </div>
         </motion.div>
       </div>
+      <StudentDocuments student={docStudent} open={docOpen} onOpenChange={setDocOpen} />
     </DashboardLayout>
   );
 };
