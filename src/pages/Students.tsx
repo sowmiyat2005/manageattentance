@@ -2,7 +2,8 @@ import { useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Download } from "lucide-react";
+import { Search, Plus, Download, FileUp } from "lucide-react";
+import { StudentDocuments } from "@/components/StudentDocuments";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +16,8 @@ const Students = () => {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [newStudent, setNewStudent] = useState({ full_name: "", email: "", student_id: "", department_id: "", year: "1st", gpa: "" });
+  const [docStudent, setDocStudent] = useState<any>(null);
+  const [docOpen, setDocOpen] = useState(false);
 
   const { data: students = [], refetch } = useQuery({
     queryKey: ["students"],
@@ -146,7 +149,8 @@ const Students = () => {
                   <th className="text-left px-5 py-3 font-medium text-muted-foreground">Department</th>
                   <th className="text-left px-5 py-3 font-medium text-muted-foreground">Year</th>
                   <th className="text-left px-5 py-3 font-medium text-muted-foreground">GPA</th>
-                  <th className="text-left px-5 py-3 font-medium text-muted-foreground">Status</th>
+                   <th className="text-left px-5 py-3 font-medium text-muted-foreground">Status</th>
+                   <th className="text-left px-5 py-3 font-medium text-muted-foreground">Docs</th>
                 </tr>
               </thead>
               <tbody>
@@ -158,13 +162,18 @@ const Students = () => {
                     <td className="px-5 py-3.5 text-muted-foreground">{s.departments?.name || "—"}</td>
                     <td className="px-5 py-3.5">{s.year}</td>
                     <td className="px-5 py-3.5 font-medium">{s.gpa}</td>
-                    <td className="px-5 py-3.5">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        s.status === "Active" ? "bg-success/10 text-success"
-                          : s.status === "On Leave" ? "bg-warning/10 text-warning"
-                          : "bg-muted text-muted-foreground"
-                      }`}>{s.status}</span>
-                    </td>
+                     <td className="px-5 py-3.5">
+                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                         s.status === "Active" ? "bg-success/10 text-success"
+                           : s.status === "On Leave" ? "bg-warning/10 text-warning"
+                           : "bg-muted text-muted-foreground"
+                       }`}>{s.status}</span>
+                     </td>
+                     <td className="px-5 py-3.5">
+                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setDocStudent(s); setDocOpen(true); }}>
+                         <FileUp className="w-4 h-4" />
+                       </Button>
+                     </td>
                   </motion.tr>
                 ))}
               </tbody>
@@ -175,6 +184,7 @@ const Students = () => {
           </div>
         </motion.div>
       </div>
+      <StudentDocuments student={docStudent} open={docOpen} onOpenChange={setDocOpen} />
     </DashboardLayout>
   );
 };
