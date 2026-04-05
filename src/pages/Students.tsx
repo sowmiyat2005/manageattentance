@@ -162,13 +162,18 @@ const Students = () => {
                     <td className="px-5 py-3.5 text-muted-foreground">{s.departments?.name || "—"}</td>
                     <td className="px-5 py-3.5">{s.year}</td>
                     <td className="px-5 py-3.5 font-medium">{s.gpa}</td>
-                    <td className="px-5 py-3.5">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        s.status === "Active" ? "bg-success/10 text-success"
-                          : s.status === "On Leave" ? "bg-warning/10 text-warning"
-                          : "bg-muted text-muted-foreground"
-                      }`}>{s.status}</span>
-                    </td>
+                     <td className="px-5 py-3.5">
+                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                         s.status === "Active" ? "bg-success/10 text-success"
+                           : s.status === "On Leave" ? "bg-warning/10 text-warning"
+                           : "bg-muted text-muted-foreground"
+                       }`}>{s.status}</span>
+                     </td>
+                     <td className="px-5 py-3.5">
+                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setDocStudent(s); setDocOpen(true); }}>
+                         <FileUp className="w-4 h-4" />
+                       </Button>
+                     </td>
                   </motion.tr>
                 ))}
               </tbody>
