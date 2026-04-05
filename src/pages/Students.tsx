@@ -16,6 +16,8 @@ const Students = () => {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [newStudent, setNewStudent] = useState({ full_name: "", email: "", student_id: "", department_id: "", year: "1st", gpa: "" });
+  const [docStudent, setDocStudent] = useState<any>(null);
+  const [docOpen, setDocOpen] = useState(false);
 
   const { data: students = [], refetch } = useQuery({
     queryKey: ["students"],
