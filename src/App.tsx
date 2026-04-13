@@ -12,6 +12,7 @@ import Courses from "./pages/Courses";
 import Attendance from "./pages/Attendance";
 import Reports from "./pages/Reports";
 import Marks from "./pages/Marks";
+import StudentProfile from "./pages/StudentProfile";
 import SettingsPage from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
