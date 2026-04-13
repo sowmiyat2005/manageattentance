@@ -17,6 +17,7 @@ import { toast } from "sonner";
 const emptyStudent = { full_name: "", email: "", student_id: "", department_id: "", year: "1st", gpa: "" };
 
 const Students = () => {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -227,6 +228,9 @@ const Students = () => {
                         </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setDocStudent(s); setDocOpen(true); }}>
                           <FileUp className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(`/students/${s.id}`)}>
+                          <Eye className="w-4 h-4" />
                         </Button>
                       </div>
                     </td>
