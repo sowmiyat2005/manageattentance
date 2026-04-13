@@ -198,6 +198,57 @@ export type Database = {
           },
         ]
       }
+      marks: {
+        Row: {
+          course_id: string
+          created_at: string
+          exam_date: string
+          id: string
+          marks_obtained: number
+          max_marks: number
+          student_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          exam_date?: string
+          id?: string
+          marks_obtained?: number
+          max_marks?: number
+          student_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          exam_date?: string
+          id?: string
+          marks_obtained?: number
+          max_marks?: number
+          student_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marks_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marks_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
