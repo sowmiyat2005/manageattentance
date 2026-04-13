@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, FileUp, Pencil, Trash2 } from "lucide-react";
+import { Search, Plus, FileUp, Pencil, Trash2, Eye } from "lucide-react";
 import { StudentDocuments } from "@/components/StudentDocuments";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
