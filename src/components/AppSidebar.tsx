@@ -6,6 +6,7 @@ import {
   ClipboardCheck,
   GraduationCap,
   BarChart3,
+  Award,
   Settings,
   LogOut,
   ChevronLeft,
@@ -20,6 +21,7 @@ const navItems = [
   { icon: Users, label: "Students", path: "/students" },
   { icon: BookOpen, label: "Courses", path: "/courses" },
   { icon: ClipboardCheck, label: "Attendance", path: "/attendance" },
+  { icon: Award, label: "Marks", path: "/marks" },
   { icon: BarChart3, label: "Reports", path: "/reports" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
